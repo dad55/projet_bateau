@@ -70,7 +70,7 @@ int main (void) {
 	Port_IO_Init_Output( GPIOA, 2);
 	Port_IO_Init_Input( GPIOB, 6);
 	
-	Timer_Active_IT(TIM4,5, notreTIM4_IRQHandler);
+	Timer_Active_IT(TIM4,5, 2,notreTIM4_IRQHandler);
 	
 	Timer_1234_Init(TIM2, 50);
 	charger_DC_pwm(TIM2, 2, 0);

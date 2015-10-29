@@ -20,7 +20,7 @@ float Timer_1234_Init(TIM_TypeDef *Timer, float Duree_us );
 /* Déclenche une interruption sur timer dont on définit la priorité (0 (++) --> 15(--)) et la fonction exécutée
 ex : Timer_Acive_IT (TIM2, 0x10, fonction_a_execute)
 */
-void Timer_Active_IT( TIM_TypeDef *Timer, u8 Priority, void (*IT_function) (void) );
+void Timer_Active_IT( TIM_TypeDef *Timer, u8 Priority, u8 channel, void (*IT_function) (void) );
 
 /*
 Configure le timer x channel y en pwm avec th en %, et la frequence

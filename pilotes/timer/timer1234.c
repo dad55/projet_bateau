@@ -58,7 +58,7 @@ float Timer_1234_Init(TIM_TypeDef *Timer, float Duree_us )
 	return duree_timer_reelle;
 }
 
-void Timer_Active_IT( TIM_TypeDef *Timer, u8 Priority, void (*IT_function) (void) )
+void Timer_Active_IT( TIM_TypeDef *Timer, u8 Priority, u8 channel, void (*IT_function) (void) )
 {
 		u32 numIT=0;
 	//configuration NVIC
@@ -90,7 +90,7 @@ void Timer_Active_IT( TIM_TypeDef *Timer, u8 Priority, void (*IT_function) (void
 	// mise à 1 exclusive du bit UIE registre TIM2_DIER pour declencher
 	// une interruption du timer sur debordement (underflow pr nous)et activation IT
 	Timer -> DIER  = (Timer -> DIER	&~ (0xFFFF));
-	Timer -> DIER = (Timer -> DIER | 0x1);
+	Timer -> DIER = (Timer -> DIER | 0x1 | (1 << channel));
 	
 }
 
