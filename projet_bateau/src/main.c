@@ -11,41 +11,74 @@
 #include "timer1234.h"
 
 
+// fonction d'interruption de l'index I
+void EXTI9_5_IRQHandler (void)
+{
+	// remise à 0 du bit d'interruption (mise à 1 du pending 5)
+	EXTI->PR = EXTI->PR | (0x1 << 5);
+	// réinitialisation du compteur
+	TIM3->CNT = 0;
+}
 
+// initialisation du codeur incrémental
+void Init_Codeur (TIM_TypeDef * Timer){
 
-int main (void) {
-	CLOCK_Configure();
-	
-	//counter de TIM3 enable 
-	TIM3->CR1 = TIM3->CR1 | 0x1;
 	// ARR
-	TIM3 ->ARR = 1439;
+	Timer ->ARR = 1439;
 	
-	//TIM3_CH1 input connecte sur TI1 
-	TIM3->CR2 = TIM3->CR2&~(0x1<<7);
+	//configuration de chaine A sur T1 (CC1S)
+	Timer->CCMR1 = Timer->CCMR1 &~ TIM_CCMR1_CC1S;
+	Timer->CCMR1 = Timer->CCMR1 | TIM_CCMR1_CC1S_0;
 	
-	//selection timer en mode encodeur
-	TIM3->SMCR = TIM3->SMCR &~0x7;
-	TIM3->SMCR = TIM3->SMCR | 0x3;
-	
-	//configuration de chaine A sur T1
-	TIM3->CCMR1 = TIM3->CCMR1 &~0x3;
-	TIM3->CCMR1 = TIM3->CCMR1 | TIM_CCMR1_CC1S_1;
-	
-	//configuration de chaine B sur T2
-	TIM3->CCMR1 = TIM3->CCMR1 &~(0x3<<8);
-	TIM3->CCMR1 = TIM3->CCMR1 | TIM_CCMR1_CC2S_1;
+	//configuration de chaine B sur T2 (CC2S)
+	Timer->CCMR1 = Timer->CCMR1 &~ TIM_CCMR1_CC2S;
+	Timer->CCMR1 = Timer->CCMR1 | TIM_CCMR1_CC2S_0;
 	
 	//configuration de polarité CC1P = '0' CC2P = '0'
-	TIM3->CCER = TIM3->CCER & ~0x22;
+	Timer->CCER = Timer->CCER & ~ TIM_CCER_CC1P;
+	Timer->CCER = Timer->CCER & ~ TIM_CCER_CC2P;
 	
-	//configuration GPIOA output push-pull alternative function port 6 et 7 (voie A & B)
-	Port_IO_Init_Input( GPIOA, 6); 
-	Port_IO_Init_Input( GPIOA, 7); 
+	//selection timer en mode encodeur
+	Timer->SMCR = Timer->SMCR &~ TIM_SMCR_SMS;
+	Timer->SMCR = Timer->SMCR | TIM_SMCR_SMS_0 | TIM_SMCR_SMS_1;
 	
-	// configuration GPIOA pour I Index output push-pull alternative function port 5
-	Port_IO_Init_Input( GPIOA, 5);
+	//counter de Timer enable 
+	Timer->CR1 = Timer->CR1 | TIM_CR1_CEN;
+}
+
+void Init_IT_Codeur (int priority){
+	// requete d'IT de la ligne 5 non masquée
+	EXTI->IMR = EXTI->IMR | (0x1 << 5);
+	// activation du front montant et descendant de la ligne 5
+	EXTI->RTSR = EXTI->RTSR | (0x1 << 5);
 	
-	while(1);
+	//configuration de l'interruption pour l'index
+	NVIC->IP[23] = priority << 4;
+	NVIC->ISER[0] = NVIC->ISER[0] | (0x1<<23);
+}
+
+int alpha;
+int main (void) {
+	
+	//activation des clock
+	CLOCK_Configure();
+	RCC->APB2ENR |= RCC_APB2ENR_IOPAEN;
+	RCC->APB1ENR |= RCC_APB1ENR_TIM3EN;
+	
+	//configuration GPIOA floating input port 5, 6 et 7 (voie I & A & B)
+	Port_IO_Init_Input(GPIOA, 5);
+	Port_IO_Init_Input(GPIOA, 6); 
+	Port_IO_Init_Input(GPIOA, 7);
+	
+	//init du codeur incrémental
+	Init_Codeur(TIM3);
+	
+	//init de l'IT du codeur
+	Init_IT_Codeur(5);
+	
+	alpha = TIM3->CNT / 4; //angle de la girouette
+	
+	while (1);
+	
 	return 0;
 }
