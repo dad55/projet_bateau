@@ -1,16 +1,21 @@
 #include "stm32f10x.h"
 #include "gpio.h"
 
-char Port_IO_Init_AF_Output ( GPIO_TypeDef *Port, u8 Broche)
+void Enable_CLK_GPIO(GPIO_TypeDef *Port)
 {
-	char erreur = 0x0;
-	
-	if (Port == GPIOA)
+		if (Port == GPIOA)
 		(RCC->APB2ENR)|= RCC_APB2ENR_IOPAEN;
 	else if (Port == GPIOB)
 		(RCC->APB2ENR)|= RCC_APB2ENR_IOPBEN;
 	else if (Port == GPIOC)
 		(RCC->APB2ENR)|= RCC_APB2ENR_IOPCEN;
+}
+
+char Port_IO_Init_AF_Output ( GPIO_TypeDef *Port, u8 Broche)
+{
+	char erreur = 0x0;
+	
+	Enable_CLK_GPIO(Port);
 	
 	if (Broche <= 0x7)
 				{
@@ -32,12 +37,7 @@ char Port_IO_Init_Output( GPIO_TypeDef * Port, u8 Broche)
 		
 	char erreur = 0x0;
 	
-	if (Port == GPIOA)
-		(RCC->APB2ENR)|= RCC_APB2ENR_IOPAEN;
-	else if (Port == GPIOB)
-		(RCC->APB2ENR)|= RCC_APB2ENR_IOPBEN;
-	else if (Port == GPIOC)
-		(RCC->APB2ENR)|= RCC_APB2ENR_IOPCEN;
+	Enable_CLK_GPIO(Port);
 
 	
 	if (Broche <= 0x7)
@@ -60,12 +60,7 @@ char Port_IO_Init_Analog_Input ( GPIO_TypeDef * Port, u8 Broche)
 {
 	char erreur = 0x0;
 
-	if (Port == GPIOA)
-		(RCC->APB2ENR)|= RCC_APB2ENR_IOPAEN;
-	else if (Port == GPIOB)
-		(RCC->APB2ENR)|= RCC_APB2ENR_IOPBEN;
-	else if (Port == GPIOC)
-		(RCC->APB2ENR)|= RCC_APB2ENR_IOPCEN;
+	Enable_CLK_GPIO(Port);
 	
 	if (Broche <=0x7)
 					Port -> CRL = Port -> CRL &~ (0xF<< (4*Broche));
@@ -80,12 +75,7 @@ char Port_IO_Init_Input( GPIO_TypeDef * Port, u8 Broche)
 {
 	char erreur = 0x0;
 
-	if (Port == GPIOA)
-		(RCC->APB2ENR)|= RCC_APB2ENR_IOPAEN;
-	else if (Port == GPIOB)
-		(RCC->APB2ENR)|= RCC_APB2ENR_IOPBEN;
-	else if (Port == GPIOC)
-		(RCC->APB2ENR)|= RCC_APB2ENR_IOPCEN;
+	Enable_CLK_GPIO(Port);
 	
 	if (Broche <=0x7)
 				{
