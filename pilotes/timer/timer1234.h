@@ -10,14 +10,14 @@ extern void (*adr_fonction_it4) (void);
 
 
 
-/* Configure un timer avec la durÈe voulue en us.
-renvoie la durÈe rÈellement comptÈe
+/* Configure un timer avec la dur√©e voulue en us.
+renvoie la dur√©e r√©ellement compt√©e
 ex : duree_reelle = Timer_1234_Init (TIM3, 500);
 */
 float Timer_1234_Init(TIM_TypeDef *Timer, float Duree_us );
 
 
-/* DÈclenche une interruption sur timer dont on dÈfinit la prioritÈ (0 (++) --> 15(--)) et la fonction exÈcutÈe
+/* D√©clenche une interruption sur timer dont on d√©finit la priorit√© (0 (++) --> 15(--)) et la fonction ex√©cut√©e
 ex : Timer_Acive_IT (TIM2, 0x10, fonction_a_execute)
 */
 void Timer_Active_IT( TIM_TypeDef *Timer, u8 Priority, u8 channel, void (*IT_function) (void) );
@@ -29,8 +29,10 @@ void config_pwm (TIM_TypeDef *Timer, u8 channel, float duty_cycle, float duree_u
 
 /*
 Permet de changer la valeur du DC du PWM
-Cela requiert d'avoir dÈj‡ fait un config_pwm
+Cela requiert d'avoir d√©j√† fait un config_pwm
 */
 void charger_DC_pwm(TIM_TypeDef *Timer, u8 channel, float duty_cycle);
+
+void Timer_Init_PWM_Input(TIM_TypeDef * Timer, u8 voie, int duree_impulsion_max);
 
 #endif
