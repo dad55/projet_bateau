@@ -31,11 +31,8 @@ void TIM4_IRQHandler (void)
 	(*adr_fonction_it4)();
 }
 
-float Timer_1234_Init(TIM_TypeDef *Timer, float Duree_us )
+void Enable_CLK_Timer1234(TIM_TypeDef *Timer)
 {
-	u32 freq_timer, prescale,counter;
-	float duree_timer_reelle;
-	
 	if (Timer == TIM1)
 		(RCC->APB2ENR) |= RCC_APB2ENR_TIM1EN;
 	else if (Timer == TIM2)
@@ -44,6 +41,14 @@ float Timer_1234_Init(TIM_TypeDef *Timer, float Duree_us )
 		(RCC->APB1ENR) |= RCC_APB1ENR_TIM3EN;
 	else if (Timer == TIM4)
 		(RCC->APB1ENR) |= RCC_APB1ENR_TIM4EN;
+}
+
+float Timer_1234_Init(TIM_TypeDef *Timer, float Duree_us )
+{
+	u32 freq_timer, prescale,counter;
+	float duree_timer_reelle;
+	
+	Enable_CLK_Timer1234(Timer);
 	
 	freq_timer = CLOCK_GetTIMCLK (Timer);
 	
@@ -89,7 +94,6 @@ void Timer_Active_IT( TIM_TypeDef *Timer, u8 Priority, u8 channel,void (*IT_func
 	
 	// mise à 1 exclusive du bit UIE registre TIM2_DIER pour declencher
 	// une interruption du timer sur debordement (underflow pr nous)et activation IT
-	Timer -> DIER  = (Timer -> DIER	&~ (0xFFFF));
 	Timer -> DIER = (Timer -> DIER | 0x1 | (1 << channel));
 }
 
@@ -97,21 +101,14 @@ void config_pwm (TIM_TypeDef *Timer, u8 channel, float duty_cycle, float duree_u
 {
 	 u32 freq_timer, prescale,counter;
 	
-	if (Timer == TIM1)
-		(RCC->APB2ENR) |= RCC_APB2ENR_TIM1EN;
-	else if (Timer == TIM2)
-		(RCC->APB1ENR) |= RCC_APB1ENR_TIM2EN;
-	else if (Timer == TIM3)
-		(RCC->APB1ENR) |= RCC_APB1ENR_TIM3EN;
-	else if (Timer == TIM4)
-		(RCC->APB1ENR) |= RCC_APB1ENR_TIM4EN;
+	Enable_CLK_Timer1234(Timer);
 	
 	switch (channel)
 	{
-		case 1 : freq_timer = CLOCK_GetTIMCLK (Timer);
+		case 1 : 
 				counter = Timer -> ARR;
 				
-				Timer -> CCR1 = (u32)(counter * (duty_cycle / 100.));
+				Timer -> CCR1 = (u32)(counter * (duty_cycle / 100));
 				
 				Timer -> CCMR1 = Timer -> CCMR1 &~ ((TIM_CCMR1_OC1M) | TIM_CCMR1_OC1PE);
 				Timer -> CCMR1 = Timer -> CCMR1 | TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1M_2;
@@ -121,10 +118,10 @@ void config_pwm (TIM_TypeDef *Timer, u8 channel, float duty_cycle, float duree_u
 				Timer -> CR1 = Timer -> CR1 | TIM_CR1_CEN;
 		
 				break;
-		case 2 : freq_timer = CLOCK_GetTIMCLK (Timer);
+		case 2 : 
 				counter = Timer -> ARR;
 				
-				Timer -> CCR2 = (u32)(counter * (duty_cycle / 100.));
+				Timer -> CCR2 = (u32)(counter * (duty_cycle / 100));
 				
 				Timer -> CCMR1 = Timer -> CCMR1 &~ ((TIM_CCMR1_OC2M) | TIM_CCMR1_OC2PE);
 				Timer -> CCMR1 = Timer -> CCMR1 | TIM_CCMR1_OC2M_1 | TIM_CCMR1_OC2M_2;
@@ -134,11 +131,10 @@ void config_pwm (TIM_TypeDef *Timer, u8 channel, float duty_cycle, float duree_u
 				Timer -> CR1 = Timer -> CR1 | TIM_CR1_CEN;
 		
 				break;
-		case 3 : freq_timer = CLOCK_GetTIMCLK (Timer);
-	
+		case 3 : 
 				counter = Timer -> ARR;
 				
-				Timer -> CCR3 = (u32)(counter * (duty_cycle / 100.));
+				Timer -> CCR3 = (u32)(counter * (duty_cycle / 100));
 				
 				Timer -> CCMR2 = Timer -> CCMR2 &~ ((TIM_CCMR2_OC3M) | TIM_CCMR2_OC3PE);
 				Timer -> CCMR2 = Timer -> CCMR2 | TIM_CCMR2_OC3M_1 | TIM_CCMR2_OC3M_2;
@@ -148,11 +144,10 @@ void config_pwm (TIM_TypeDef *Timer, u8 channel, float duty_cycle, float duree_u
 				Timer -> CR1 = Timer -> CR1 | TIM_CR1_CEN;
 		
 				break;
-		case 4 : freq_timer = CLOCK_GetTIMCLK (Timer);
-	
+		case 4 : 
 				counter = Timer -> ARR;
 				
-				Timer -> CCR4 = (u32)(counter * (duty_cycle / 100.));
+				Timer -> CCR4 = (u32)(counter * (duty_cycle / 100));
 				
 				Timer -> CCMR2 = Timer -> CCMR2 &~ ((TIM_CCMR2_OC4M) | TIM_CCMR2_OC4PE);
 				Timer -> CCMR2 = Timer -> CCMR2 | TIM_CCMR2_OC4M_1 | TIM_CCMR2_OC4M_2;
@@ -174,10 +169,10 @@ void charger_DC_pwm(TIM_TypeDef *Timer, u8 channel, float duty_cycle)
 {
 	switch(channel)
 	{
-		case 1: Timer->CCR1 = (u32)((Timer->ARR + 1) * (duty_cycle / 100.)); break;
-		case 2: Timer->CCR2 = (u32)((Timer->ARR + 1) * (duty_cycle / 100.)); break;
-		case 3: Timer->CCR3 = (u32)((Timer->ARR + 1) * (duty_cycle / 100.)); break;
-		case 4: Timer->CCR4 = (u32)((Timer->ARR + 1) * (duty_cycle / 100.));
+		case 1: Timer->CCR1 = (u32)((Timer->ARR + 1) * (duty_cycle / 100)); break;
+		case 2: Timer->CCR2 = (u32)((Timer->ARR + 1) * (duty_cycle / 100)); break;
+		case 3: Timer->CCR3 = (u32)((Timer->ARR + 1) * (duty_cycle / 100)); break;
+		case 4: Timer->CCR4 = (u32)((Timer->ARR + 1) * (duty_cycle / 100));
 	}
 }
 
