@@ -175,4 +175,36 @@ void charger_DC_pwm(TIM_TypeDef *Timer, u8 channel, float duty_cycle)
 		case 4: Timer->CCR4 = (u32)((Timer->ARR + 1) * (duty_cycle / 100));
 	}
 }
+void Timer_Init_PWM_Input(TIM_TypeDef * Timer, u8 voie, int duree_impulsion_max){
+	Enable_CLK_Timer1234(Timer);
+	u32 freq_timer = CLOCK_GetTIMCLK (Timer);
+	int prescale = (int)(((float)(duree_impulsion_max* 0.000001) * freq_timer) / 65535)+1;
+	Timer->ARR = 0xFFFF;
+	Timer->PSC = prescale;
+	Timer->CR1= Timer->CR1| TIM_CR1_CEN;
+	switch (voie){
+		case 1 :
+			Timer->CCMR1 = Timer->CCMR1 &~TIM_CCMR1_CC1S;
+			Timer->CCMR1 |= TIM_CCMR1_CC1S_0;
+			Timer->CCER = Timer->CCER & ~TIM_CCER_CC1P;
+			Timer->CCER |=TIM_CCER_CC1E ;
+			Timer->CCMR1 = Timer->CCMR1 = Timer->CCMR1 &~TIM_CCMR1_CC2S;
+			Timer->CCMR1 |= TIM_CCMR1_CC2S_1;	
+			Timer->CCER |= TIM_CCER_CC2E | TIM_CCER_CC2P;	
+			Timer->SMCR = (Timer->SMCR & ~TIM_SMCR_TS) | TIM_SMCR_TS_0 | TIM_SMCR_TS_2;
+			Timer->SMCR = (Timer->SMCR & ~TIM_SMCR_SMS) | TIM_SMCR_SMS_2;
+			break;
+		case 2 :
+			Timer->CCMR2 = Timer->CCMR2 &~TIM_CCMR2_CC3S;
+			Timer->CCMR2 |= TIM_CCMR2_CC3S_0;
+			Timer->CCER = Timer->CCER & ~TIM_CCER_CC3P;
+			Timer->CCER |=TIM_CCER_CC3E ;
+			Timer->CCMR2 = Timer->CCMR2 &~TIM_CCMR2_CC4S;
+			Timer->CCMR2 |= TIM_CCMR2_CC4S_1;	
+			Timer->CCER |= TIM_CCER_CC4E | TIM_CCER_CC4P;	
+			Timer->SMCR = (Timer->SMCR & ~TIM_SMCR_TS) | TIM_SMCR_TS_0 | TIM_SMCR_TS_2;
+			Timer->SMCR = (Timer->SMCR & ~TIM_SMCR_SMS) | TIM_SMCR_SMS_2;
+			break;
+	}
 
+}
