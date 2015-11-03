@@ -51,7 +51,7 @@ float Timer_1234_Init(TIM_TypeDef *Timer, float Duree_us )
 	Timer -> PSC = prescale;
 	counter = (int)(Duree_us * 0.000001 * freq_timer / ((double)(prescale+1)))-1; 
 	Timer -> ARR = counter;
-	Timer -> CR1 = 0x81; // Autoreload + down
+	Timer -> CR1 = 0x1; // Autoreload
 	
 	duree_timer_reelle = (float) (counter * prescale / freq_timer);
 	
@@ -87,7 +87,7 @@ void Timer_Active_IT( TIM_TypeDef *Timer, u8 Priority, u8 channel,void (*IT_func
 	else if (Timer == TIM4)
 		adr_fonction_it4 = IT_function;	
 	
-	// mise à 1 exclusive du bit UIE registre TIM2_DIER pour declencher
+	// mise Ã  1 exclusive du bit UIE registre TIM2_DIER pour declencher
 	// une interruption du timer sur debordement (underflow pr nous)et activation IT
 	Timer -> DIER  = (Timer -> DIER	&~ (0xFFFF));
 	Timer -> DIER = (Timer -> DIER | 0x1 | (1 << channel));
@@ -109,11 +109,7 @@ void config_pwm (TIM_TypeDef *Timer, u8 channel, float duty_cycle, float duree_u
 	switch (channel)
 	{
 		case 1 : freq_timer = CLOCK_GetTIMCLK (Timer);
-	
-				prescale = (int)(((float)(duree_us * 0.000001) * freq_timer) / 65535)+1;
-				Timer -> PSC = prescale;
-				counter = (int)(duree_us * 0.000001 * freq_timer / ((double)(prescale+1)))-1; 
-				Timer -> ARR = counter;
+				counter = Timer -> ARR;
 				
 				Timer -> CCR1 = (u32)(counter * (duty_cycle / 100.));
 				
@@ -126,11 +122,7 @@ void config_pwm (TIM_TypeDef *Timer, u8 channel, float duty_cycle, float duree_u
 		
 				break;
 		case 2 : freq_timer = CLOCK_GetTIMCLK (Timer);
-	
-				prescale = (int)(((float)(duree_us * 0.000001) * freq_timer) / 65535)+1;
-				Timer -> PSC = prescale;
-				counter = (int)(duree_us * 0.000001 * freq_timer / ((double)(prescale+1)))-1; 
-				Timer -> ARR = counter;
+				counter = Timer -> ARR;
 				
 				Timer -> CCR2 = (u32)(counter * (duty_cycle / 100.));
 				
@@ -144,10 +136,7 @@ void config_pwm (TIM_TypeDef *Timer, u8 channel, float duty_cycle, float duree_u
 				break;
 		case 3 : freq_timer = CLOCK_GetTIMCLK (Timer);
 	
-				prescale = (int)(((float)(duree_us * 0.000001) * freq_timer) / 65535)+1;
-				Timer -> PSC = prescale;
-				counter = (int)(duree_us * 0.000001 * freq_timer / ((double)(prescale+1)))-1; 
-				Timer -> ARR = counter;
+				counter = Timer -> ARR;
 				
 				Timer -> CCR3 = (u32)(counter * (duty_cycle / 100.));
 				
@@ -161,10 +150,7 @@ void config_pwm (TIM_TypeDef *Timer, u8 channel, float duty_cycle, float duree_u
 				break;
 		case 4 : freq_timer = CLOCK_GetTIMCLK (Timer);
 	
-				prescale = (int)(((float)(duree_us * 0.000001) * freq_timer) / 65535)+1;
-				Timer -> PSC = prescale;
-				counter = (int)(duree_us * 0.000001 * freq_timer / ((double)(prescale+1)))-1; 
-				Timer -> ARR = counter;
+				counter = Timer -> ARR;
 				
 				Timer -> CCR4 = (u32)(counter * (duty_cycle / 100.));
 				
