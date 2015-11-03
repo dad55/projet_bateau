@@ -99,7 +99,7 @@ void Timer_Active_IT( TIM_TypeDef *Timer, u8 Priority, u8 channel,void (*IT_func
 
 void config_pwm (TIM_TypeDef *Timer, u8 channel, float duty_cycle, float duree_us)
 {
-	 u32 freq_timer, prescale,counter;
+	 u32 counter;
 	
 	Enable_CLK_Timer1234(Timer);
 	
