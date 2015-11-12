@@ -97,7 +97,7 @@ void Timer_Active_IT( TIM_TypeDef *Timer, u8 Priority, u8 channel,void (*IT_func
 	Timer -> DIER = (Timer -> DIER | 0x1 | (1 << channel));
 }
 
-void config_pwm (TIM_TypeDef *Timer, u8 channel, float duty_cycle, float duree_us)
+void config_pwm (TIM_TypeDef *Timer, u8 channel, float duty_cycle)
 {
 	 u32 counter;
 	
