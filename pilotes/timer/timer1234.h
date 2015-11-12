@@ -9,6 +9,7 @@ extern void (*adr_fonction_it3) (void);
 extern void (*adr_fonction_it4) (void);
 
 
+void Enable_CLK_Timer1234(TIM_TypeDef *Timer);
 
 /* Configure un timer avec la durée voulue en us.
 renvoie la durée réellement comptée
