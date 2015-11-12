@@ -25,7 +25,7 @@ void Timer_Active_IT( TIM_TypeDef *Timer, u8 Priority, u8 channel, void (*IT_fun
 /*
 Configure le timer x channel y en pwm avec th en %, et la frequence
 */
-void config_pwm (TIM_TypeDef *Timer, u8 channel, float duty_cycle, float duree_us);
+void config_pwm (TIM_TypeDef *Timer, u8 channel, float duty_cycle);
 
 /*
 Permet de changer la valeur du DC du PWM
