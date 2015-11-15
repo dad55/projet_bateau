@@ -7,12 +7,23 @@
 /*Allumer le adc*/
 void power_ADC (ADC_TypeDef * ADC);
 
-/*Configuer l'adc en conversion unique en choisissant la cha�ne voulue*/
+/*Configuer l'adc en conversion unique en choisissant la chaîne voulue*/
 void config_adc_single_channel (ADC_TypeDef * ADC, u8 channel);
 
-/*Retourne le r�sultat de la conversion sur les 12 lsb
-  Necessite d'avoir allumer l'adc et de l'avoir configur�*/
+/*Retourne le résultat de la conversion sur les 12 lsb
+  Necessite d'avoir allumer l'adc et de l'avoir configuré*/
 u16 read_result_conv(ADC_TypeDef * ADC);
+
+/*Lancement d'une nouvelle conversion*/
+void start_conv(ADC_TypeDef * ADC);
+
+
+/*Active l'intérruption ADC1 et ADC2     */
+/*Remarque ADC1 et ADC2 ont une seule    */
+/*intérruption globale et si on utilise  */
+/*cette fonction pour changer le handler */
+/*de l'un autre et automatiquemen modifié*/
+void Active_IT_ADC(ADC_TypeDef * ADC, u8 Priority,  void (*IT_function) (void));
 
 #endif
 
