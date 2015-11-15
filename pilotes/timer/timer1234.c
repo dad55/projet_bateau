@@ -176,9 +176,11 @@ void charger_DC_pwm(TIM_TypeDef *Timer, u8 channel, float duty_cycle)
 	}
 }
 void Timer_Init_PWM_Input(TIM_TypeDef * Timer, u8 voie, int duree_impulsion_max){
+	int prescale;
+	u32 freq_timer;
 	Enable_CLK_Timer1234(Timer);
-	u32 freq_timer = CLOCK_GetTIMCLK (Timer);
-	int prescale = (int)(((float)(duree_impulsion_max* 0.000001) * freq_timer) / 65535)+1;
+	freq_timer = CLOCK_GetTIMCLK (Timer);
+	prescale = (int)(((float)(duree_impulsion_max* 0.000001) * freq_timer) / 65535)+1;
 	Timer->ARR = 0xFFFF;
 	Timer->PSC = prescale;
 	Timer->CR1= Timer->CR1| TIM_CR1_CEN;
