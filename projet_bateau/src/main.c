@@ -21,7 +21,7 @@ void EXTI9_5_IRQHandler (void)
 }
 
 // initialisation du codeur incrémental
-void Init_Codeur (TIM_TypeDef * Timer){
+void Init_Codeur (TIM_TypeDef * Timer, int priority){
 
 	// ARR
 	Timer ->ARR = 1439;
@@ -44,11 +44,10 @@ void Init_Codeur (TIM_TypeDef * Timer){
 	
 	//counter de Timer enable 
 	Timer->CR1 = Timer->CR1 | TIM_CR1_CEN;
-}
 
-void Init_IT_Codeur (int priority){
 	// requete d'IT de la ligne 5 non masquée
 	EXTI->IMR = EXTI->IMR | (0x1 << 5);
+	
 	// activation du front montant et descendant de la ligne 5
 	EXTI->RTSR = EXTI->RTSR | (0x1 << 5);
 	
@@ -57,28 +56,70 @@ void Init_IT_Codeur (int priority){
 	NVIC->ISER[0] = NVIC->ISER[0] | (0x1<<23);
 }
 
-int alpha;
+
+float alpha;
+float duty_cycle;
+float teta;
+u8 alerte_roulis;
+
+void Convert_alpha_DC (float angle, u8 alerte_roulis){
+	if (alerte_roulis == 1){
+		duty_cycle = 10; // voiles non bordées
+	}
+	else {
+		if (alpha > 180) { // remise de alpha [0;360] à [0;180]
+			alpha = 360-alpha;
+		}
+		
+		if (alpha <= 45) {
+			teta = 0; // les voiles sont bordées (angle des voiles à 0°), angle du bras = 90°
+			duty_cycle = 10; 
+		}
+		else if (alpha >= 45) {
+			
+			teta =  alpha *2/3 - 30; // angle du bras dans [0°;90°]
+			duty_cycle = - teta/18 + 10; 
+		}
+	}
+	charger_DC_pwm(TIM1, 1, duty_cycle);
+}
+
 int main (void) {
 	
 	//activation des clock
 	CLOCK_Configure();
-	RCC->APB2ENR |= RCC_APB2ENR_IOPAEN;
-	RCC->APB1ENR |= RCC_APB1ENR_TIM3EN;
+	Enable_CLK_Timer1234(TIM3); // enable clock timer
 	
 	//configuration GPIOA floating input port 5, 6 et 7 (voie I & A & B)
 	Port_IO_Init_Input(GPIOA, 5);
-	Port_IO_Init_Input(GPIOA, 6); 
+	Port_IO_Init_Input(GPIOA, 6);
 	Port_IO_Init_Input(GPIOA, 7);
 	
 	//init du codeur incrémental
-	Init_Codeur(TIM3);
+	Init_Codeur(TIM3, 5);
 	
-	//init de l'IT du codeur
-	Init_IT_Codeur(5);
+	// Servomoteur PWM
+	// duty cycle varie entre 1/20 à 2/20 => entre 5 et 10%
 	
-	alpha = TIM3->CNT / 4; //angle de la girouette
+	//alpha = 30;
+	Port_IO_Init_AF_Output ( GPIOA, 8);
+	Timer_1234_Init(TIM1,20000);
+	config_pwm (TIM1, 1, 5); // config TIM1 CH1
 	
-	while (1);
+	while (1){
+		alpha = TIM3->CNT / 4; //angle de la girouette
+		
+		Convert_alpha_DC(alpha, alerte_roulis);
+		
+		// le bras varie entre 0 et 90°
+		// valeur correspondant à un bras à 0° (5%)
+		// valeur correspondant à un bras à 90° (10%)
+		// quand le bras est à 90° les voiles sont à 0°
+		// quand le bras est à 0° les voiles sont à 90° d'amplitude et le vent décide du signe de l'angle de la voile
+
+	//duty_cycle = 5;
+	//duty_cycle = 10;
 	
-	return 0;
+	}
+	//while(1);
 }
