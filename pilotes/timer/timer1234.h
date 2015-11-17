@@ -43,14 +43,6 @@ Remarque : A chaque front montant de counteur passe à 0
 
 void Timer_Init_PWM_Input(TIM_TypeDef * Timer, u8 voie, int duree_impulsion_max);
 
-/* Mode Compare avec comme mode OCx choisi, la mise à l'état haut
-   dès qu'il y a un 'match'
-	 */
-float Timer_Init_Compare (TIM_TypeDef * Timer, float pourcentage_ARR, u8 channel);
 
-/*
-	Active l'intérruption liée aux captures/compare du Timer1
-*/
-void Timer_Active_IT_TIM1_CC(u8 priority, u8 channel,void (*IT_function) (void));
 
 #endif
