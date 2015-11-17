@@ -32,9 +32,6 @@ void TIM4_IRQHandler (void)
 	(*adr_fonction_it4)();
 }
 
-void TIM1_CC_IRQHandler (void){
-	(*adr_fonction_it_TIM1_CC) ();
-}
 
 void Enable_CLK_Timer1234(TIM_TypeDef *Timer)
 {
@@ -72,7 +69,7 @@ void Timer_Active_IT( TIM_TypeDef *Timer, u8 Priority, u8 channel,void (*IT_func
 {
 		u32 numIT=0;
 	//configuration NVIC
-	//reglage priorite timer2
+	//reglage priorite timer
 	if( Timer == TIM1)
 			numIT = 25;
 	else if( Timer == TIM2)
@@ -85,7 +82,7 @@ void Timer_Active_IT( TIM_TypeDef *Timer, u8 Priority, u8 channel,void (*IT_func
   NVIC -> IP [numIT] = Priority << 4;
 	
 	
-	//autoriser le NVIC a prendre a compte l'interruption du Timer2
+	//autoriser le NVIC a prendre a compte l'interruption du Timer
 	NVIC ->ISER[0] = NVIC -> ISER[0] | (0x1 << numIT); 
 	
 	if (Timer == TIM1)
@@ -97,18 +94,11 @@ void Timer_Active_IT( TIM_TypeDef *Timer, u8 Priority, u8 channel,void (*IT_func
 	else if (Timer == TIM4)
 		adr_fonction_it4 = IT_function;	
 	
-	// mise à 1 exclusive du bit UIE registre TIM2_DIER pour declencher
-	// une interruption du timer sur debordement (underflow pr nous)et activation IT
+	// mise à 1 exclusive du bit UIE registre TIMx_DIER pour declencher
+	// une interruption du timer sur debordement et activation IT
 	Timer -> DIER = (Timer -> DIER | 0x1 | (1 << channel));
 }
 
-void Timer_Active_IT_TIM1_CC(u8 priority, u8 channel,void (*IT_function) (void)){
-	u8 numIT = 27;
-	TIM1 -> DIER |= (1 << channel);
-	NVIC -> IP [numIT] = priority << 4;
-	NVIC ->ISER[0] = NVIC -> ISER[0] | (0x1<<numIT);
-	adr_fonction_it_TIM1_CC = IT_function;	
-}
 
 void config_pwm (TIM_TypeDef *Timer, u8 channel, float duty_cycle)
 {
@@ -225,41 +215,3 @@ void Timer_Init_PWM_Input(TIM_TypeDef * Timer, u8 voie, int duree_impulsion_max)
 }
 
 
-float Timer_Init_Compare (TIM_TypeDef * Timer, float pourcentage_ARR, u8 channel){
-	int CCRx;
-	CCRx = (int) ((pourcentage_ARR*Timer->ARR)/100+0.5);
-	
-	if (!(CCRx>Timer->ARR)){
-		Timer->CR1 = Timer->CR1 &~ TIM_CR1_CEN;
-		
-		if (channel==1)	{
-				Timer->CCR1=CCRx;
-				Timer -> CCMR1 = Timer -> CCMR1 &~ (TIM_CCMR1_OC1M);
-				Timer->CCMR1 |= TIM_CCMR1_OC1M_0;
-			
-		}
-		else if(channel==2){
-				Timer->CCR2=CCRx;
-				Timer -> CCMR1 = Timer -> CCMR1 &~ (TIM_CCMR1_OC2M);
-				Timer->CCMR1 |= TIM_CCMR1_OC2M_0;
-		
-		}
-		else if (channel==3){
-				Timer->CCR3=CCRx;
-				Timer -> CCMR2 = Timer -> CCMR2 &~ (TIM_CCMR2_OC3M);
-				Timer->CCMR2 |= TIM_CCMR2_OC3M_0;
-		
-		}
-		else if (channel==4){
-				Timer->CCR4=CCRx;
-				Timer -> CCMR2 = Timer -> CCMR2 &~ (TIM_CCMR2_OC4M);
-				Timer->CCMR2 |= TIM_CCMR2_OC4M_0;
-		}
-		Timer->CCER |= TIM_CCER_CC1E <<(4*(channel-1));
-		Timer->CR1 |= TIM_CR1_CEN;
-	}
-
-	
-	
-return (CCRx*100/Timer->ARR);
-}
