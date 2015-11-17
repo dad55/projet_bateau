@@ -38,9 +38,11 @@
 
 
 	void send_UART( char message, USART_TypeDef * USART){
-		while(USART->SR && USART_SR_TC == 0);
-		USART->DR = message;	
 		USART->CR1 |= USART_CR1_TE;
+		USART->DR = message;	
+		while(USART->SR & USART_SR_TC == 0);
+		USART->CR1 &= ~USART_CR1_TE;
+		
 	}
 	
 	void function_UART(u8 alerte_roulis, u8 alerte_batterie){
@@ -96,7 +98,7 @@
 		}
 		angle = acos(((y*ADC_VDD/0xFFF)-(Y_AXIS_1g-ACCELERO_Sensitivity))/ACCELERO_Sensitivity)*180/PI;
 		
-		if ((angle>45)&(alerte_roulis==0))
+		if ((angle>45)&&(alerte_roulis==0))
 			alerte_roulis=1;
 		else if((angle<44)&&(alerte_roulis==1))
 			alerte_roulis=0;
@@ -313,6 +315,7 @@ int main (void) {
 	
 	Timer_Active_IT( TIM1, 99, 0, &Timer_IT);
 	
+	Port_IO_Set( GPIOA, 11);
 	while(1)
 	{
 		alpha = TIM3->CNT / 4; //angle de la girouette
