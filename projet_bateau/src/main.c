@@ -228,7 +228,7 @@ float teta;
 
 void Convert_alpha_DC (float angle, u8 alerte_roulis){
 	if (alerte_roulis == 1){
-		duty_cycle = 10; // voiles non bordÃ©es
+		duty_cycle = 5; // voiles non bordÃ©es
 	}
 	else {
 		if (alpha > 180) { // remise de alpha [0;360] Ã  [0;180]
