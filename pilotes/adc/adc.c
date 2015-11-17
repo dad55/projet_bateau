@@ -1,6 +1,5 @@
 #include "stm32f10x.h"
 #include "adc.h"
-
 void (*ptr_func_it_adc)(void);
 
 void power_ADC (ADC_TypeDef * ADC)
@@ -35,7 +34,7 @@ u16 read_result_conv(ADC_TypeDef * ADC)
 		return result;
 }
 
-void ADC1_2_IRQHandler(void){	
+void ADC_IRQHandler(void){	
 	(*ptr_func_it_adc)();	
 }
 
@@ -48,8 +47,9 @@ void Active_IT_ADC(ADC_TypeDef * ADC, u8 Priority,  void (*IT_function) (void)){
 
 
 void start_conv(ADC_TypeDef * ADC){
-	ADC -> CR2 = 0x1; // lancement de la conversion
+	ADC -> CR2 |= 0x1; // lancement de la conversion
 }
+
 
 
 
