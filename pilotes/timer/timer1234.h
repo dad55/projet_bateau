@@ -35,13 +35,23 @@ Cela requiert d'avoir déjà fait un config_pwm
 void charger_DC_pwm(TIM_TypeDef *Timer, u8 channel, float duty_cycle);
 
 /*
-Mode PWM en entrée
-
-Remarque : A chaque front montant de counteur passe à 0
-
+	Mode PWM en entrée
+	Remarque : A chaque front montant de counteur passe à 0
 */
 
 void Timer_Init_PWM_Input(TIM_TypeDef * Timer, u8 voie, int duree_impulsion_max);
+
+/*
+	Fonction à mettre obligatoirement en fin de gestion d'une interruption
+	si l'interruption update est active
+*/
+void Timer_IT_Update_OFF(TIM_TypeDef * Timer);
+
+/*
+	Fonction à mettre obligatoirement en fin de gestion d'une interrution
+	si l'interruption Capture/Compare channel est active
+*/
+void Timer_IT_CCx_OFF(TIM_TypeDef * Timer, u8 channel);
 
 
 
