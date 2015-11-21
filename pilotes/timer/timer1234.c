@@ -45,6 +45,10 @@ void Enable_CLK_Timer1234(TIM_TypeDef *Timer)
 		(RCC->APB1ENR) |= RCC_APB1ENR_TIM4EN;
 }
 
+
+
+
+
 float Timer_1234_Init(TIM_TypeDef *Timer, float Duree_us )
 {
 	u32 freq_timer, prescale,counter;
@@ -98,6 +102,11 @@ void Timer_Active_IT( TIM_TypeDef *Timer, u8 Priority, u8 channel,void (*IT_func
 	// une interruption du timer sur debordement et activation IT
 	Timer -> DIER = (Timer -> DIER | 0x1 | (1 << channel));
 }
+
+
+
+
+
 
 
 void config_pwm (TIM_TypeDef *Timer, u8 channel, float duty_cycle)
@@ -212,6 +221,13 @@ void Timer_Init_PWM_Input(TIM_TypeDef * Timer, u8 voie, int duree_impulsion_max)
 			break;
 	}
 
+}
+
+void Timer_IT_Update_OFF(TIM_TypeDef * Timer){
+	Timer->SR &= ~TIM_SR_UIF;
+}
+void Timer_IT_CCx_OFF(TIM_TypeDef * Timer, u8 channel){
+	Timer->SR &= ~(0x1<<channel);
 }
 
 
