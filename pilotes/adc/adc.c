@@ -2,19 +2,16 @@
 #include "adc.h"
 void (*ptr_func_it_adc)(void);
 
-void power_ADC (ADC_TypeDef * ADC)
-{
+void power_ADC (ADC_TypeDef * ADC){
 		if (ADC == ADC1)
 				RCC -> APB2ENR |= RCC_APB2ENR_ADC1EN;
 		else if  (ADC == ADC2)
 				RCC -> APB2ENR |= RCC_APB2ENR_ADC2EN;
-		
-		ADC -> CR2 = 0x1; // allumage ADC -- mise a 1 bit adon (bit 0)
+				ADC -> CR2 = 0x1; // allumage ADC -- mise a 1 bit adon (bit 0)
 }
 		
 
-void config_adc_single_channel (ADC_TypeDef * ADC, u8 channel)
-{
+void config_adc_single_channel (ADC_TypeDef * ADC, u8 channel){
 		if (channel < 16)
 			{
 				ADC -> SQR3 = ADC -> SQR3 &~(0xF);
@@ -22,10 +19,8 @@ void config_adc_single_channel (ADC_TypeDef * ADC, u8 channel)
 			}
 }
 
-u16 read_result_conv(ADC_TypeDef * ADC)
-{
+u16 read_result_conv(ADC_TypeDef * ADC){
 		u16 result;
-
 		
 		ADC -> CR2 = 0x1; // lancement de la conversion
 		while ((((ADC -> SR & 0x2)>>1) != 0x1));
@@ -34,7 +29,9 @@ u16 read_result_conv(ADC_TypeDef * ADC)
 		return result;
 }
 
-void ADC_IRQHandler(void){	
+
+//void ADC_IRQHandler(void){	
+void ADC1_2_IRQHandler(void){	
 	(*ptr_func_it_adc)();	
 }
 
@@ -50,6 +47,16 @@ void start_conv(ADC_TypeDef * ADC){
 	ADC -> CR2 |= 0x1; // lancement de la conversion
 }
 
+u16 lire_ADC(ADC_TypeDef * ADC){
+	u16 result;
+	result = ADC->DR;
+	//ADC->SR = ADC->SR &~ ADC_SR_EOC;
+	return result;
+}
+
+u8 ADC_ready(ADC_TypeDef * ADC){
+	return (u8)((ADC->SR & ADC_SR_EOC) ==ADC_SR_EOC);
+}
 
 
 
